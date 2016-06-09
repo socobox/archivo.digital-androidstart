@@ -14,4 +14,10 @@
         completions."
     </string>
     <string name="action_add">Agregar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+    <string name="prompt_product_name">Nombre</string>
+    <string name="prompt_product_desc">Descripción</string>
+    <string name="editar">Editar</string>
+    <string name="delete">Borrar</string>
 </resources>

@@ -197,16 +197,69 @@ public class DataService {
 
     }
 
+    public void loadProducto(final String keyProducto, final ResponseListener<Producto> cb) {
+        JSONObject obj = null;
+        try {
+            obj = new QueryBuilder(DOMAIN, "PRODUCTO", 1, 1000)
+                    .fetch(new String[]{"GRUPO"})
+                    .compileWithKeys(new String[]{keyProducto});
+
+            Log.d("DATA", "QUERY:" + obj.toString());
+
+            HttpService.postJSON(getContext(), "/api/data/v1/row/find", token, obj, new JsonHttpResponseHandler() {
+
+                public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
+                    try {
+                        Log.w("RESPONSE", response.toString());
+                        if (response.getBoolean("success")) {
+                            JSONArray items = response.getJSONArray("results");
+                            if (items.getJSONObject(0) == null){
+                                cb.err("Producto no existe");
+                            }
+                            JSONObject fetch = response.getJSONObject("fetched_results");
+                            JSONObject obj = items.getJSONObject(0);
+
+                            Producto tmp = new Producto().mapFromJSONObject(obj);
+                            GrupoProducto aux = new GrupoProducto().mapFromJSONObject(
+                                    fetch.getJSONObject("GRUPO").getJSONObject(tmp.getGrupo())
+                            );
+                            tmp.setGrupoReference(aux);
+
+                            cb.ok(tmp);
+
+                        } else {
+                            cb.err(response.getString("msg"));
+                        }
+                    } catch (JSONException e) {
+                        Log.e("DBERROR", e.getMessage());
+                        cb.err(e.getMessage());
+                    }
+
+                }
+
+
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    cb.err("Problemas al sincronizar");
+                }
+            });
+        } catch (JSONException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public void addProducto(String name, String desc, String key, final ResponseListener<Void> cb){
         JSONObject obj = new JSONObject();
         try {
             obj.put("domain", DOMAIN);
             obj.put("row_model", "PRODUCTO");
+            JSONArray array = new JSONArray();
             JSONObject p = new JSONObject();
+            array.put(p);
             p.put("NOMBRE", name);
             p.put("DESCRIPCION", desc);
             p.put("GRUPO", key);
-            obj.put("rows", p);
+            obj.put("rows", array);
 
             Log.d("DATA", "PRODCUTO JSON:" + obj.toString());
             try {
@@ -246,4 +299,90 @@ public class DataService {
     }
 
 
+    public void updateProducto(Producto prod, final ResponseListener<Void> cb) {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("domain", DOMAIN);
+            obj.put("row_model", "PRODUCTO");
+            JSONArray array = new JSONArray();
+            array.put(prod.toJSONObject());
+            obj.put("rows", array);
+
+            Log.d("DATA", "PRODCUTO JSON:" + obj.toString());
+            try {
+                HttpService.postJSON(ctx, "/api/data/v1/row/update", token, obj, new JsonHttpResponseHandler() {
+
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        try {
+
+                            if (response.getBoolean("success")) {
+                                cb.ok(null);
+
+                                //
+                            } else {
+                                Log.d("DATA", "ORDENS ERROR:" + response.toString());
+                                cb.err("Problemas al enviar las órdenes");
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            cb.err("Problemas al enviar las órdenes");
+                        }
+                    }
+
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        cb.err(errorResponse != null ? errorResponse.toString() : "" + throwable);
+                    }
+
+
+                });
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteProducto(Producto prod, final ResponseListener<Void> cb) {
+        JSONObject obj = null;
+        try {
+            obj = new QueryBuilder(DOMAIN, "PRODUCTO")
+                    .compileWithKeys(new String[]{prod.getKey()});
+
+            Log.d("DATA", "PRODCUTO JSON:" + obj.toString());
+            try {
+                HttpService.postJSON(ctx, "/api/data/v1/row/delete", token, obj, new JsonHttpResponseHandler() {
+
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        try {
+
+                            if (response.getBoolean("success")) {
+                                cb.ok(null);
+
+                                //
+                            } else {
+                                Log.d("DATA", "ORDENS ERROR:" + response.toString());
+                                cb.err("Problemas al enviar las órdenes");
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            cb.err("Problemas al enviar las órdenes");
+                        }
+                    }
+
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        cb.err(errorResponse != null ? errorResponse.toString() : "" + throwable);
+                    }
+
+
+                });
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -10,6 +10,7 @@ import org.json.JSONObject;
  */
 public class QueryBuilder {
 
+    private JSONArray fetch;
     private JSONObject obj;
     private JSONArray required;
     private JSONArray where;
@@ -37,7 +38,17 @@ public class QueryBuilder {
         }
     }
 
-
+    public QueryBuilder(int domain, String rowModel) throws JSONException {
+        obj = new JSONObject();
+        obj.put("domain", domain);
+        obj.put("row_model", rowModel);
+        required = new JSONArray();
+        fetch = new JSONArray();
+        where = new JSONArray();
+        currentGroup = new JSONObject();
+        currentGroup.put("ANDOR", ANDOR.AND);
+        currentGroup.put("GROUP", new JSONArray());
+    }
 
     public QueryBuilder(int domain, String rowModel, int page, int size) throws JSONException {
         obj = new JSONObject();
@@ -46,6 +57,7 @@ public class QueryBuilder {
         obj.put("page", page);
         obj.put("size", size);
         required = new JSONArray();
+        fetch = new JSONArray();
         where = new JSONArray();
         currentGroup = new JSONObject();
         currentGroup.put("ANDOR", ANDOR.AND);
@@ -70,14 +82,22 @@ public class QueryBuilder {
         return this;
     }
 
-    public QueryBuilder addRequire(String model){
+    public QueryBuilder addRequire(String model) {
         required.put(model);
+        return this;
+    }
+
+    public QueryBuilder fetch(String[] models) {
+        for (String model : models) {
+            fetch.put(model);
+
+        }
         return this;
     }
 
 
     public JSONObject compileWithKeys(String[] keys) throws JSONException {
-        if(where.length()>0){
+        if (where.length() > 0) {
             throw new IllegalStateException("");
         }
 
@@ -87,21 +107,34 @@ public class QueryBuilder {
 
         JSONObject tmp = new JSONObject();
         tmp.put("keys", where);
+
+        if (required.length() > 0) {
+            obj.put("require", required);
+        }
+
+        if (fetch.length()>0){
+            obj.put("fetch", fetch);
+        }
+
         obj.put("where", tmp);
         return obj;
     }
 
     public JSONObject compile() throws JSONException {
-        if (currentGroup.getJSONArray("GROUP").length() > 0){
+        if (currentGroup.getJSONArray("GROUP").length() > 0) {
             where.put(currentGroup);
         }
 
-        if (where.length()>0){
+        if (where.length() > 0) {
             obj.put("where", where);
         }
 
-        if(required.length()>0){
+        if (required.length() > 0) {
             obj.put("require", required);
+        }
+
+        if (fetch.length()>0){
+            obj.put("fetch", fetch);
         }
         return obj;
     }

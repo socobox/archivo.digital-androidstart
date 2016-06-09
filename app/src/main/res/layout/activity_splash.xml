@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    tools:context="archivo.digital.androidstart.SplashActivity">
+    tools:context="archivo.digital.androidstart.SplashActivity"
+    android:background="@color/colorPrimaryDark">
 
     <LinearLayout
         android:orientation="vertical"
@@ -17,7 +18,8 @@
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
             android:src="@drawable/poweredby"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:adjustViewBounds="true" />
 
     </LinearLayout>
 </RelativeLayout>

@@ -1,11 +1,19 @@
 package archivo.digital.androidstart;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
+import archivo.digital.androidstart.models.Producto;
 import archivo.digital.androidstart.services.DataService;
+import archivo.digital.androidstart.utils.ResponseListener;
 
 /**
  * @author https://archivo.digital
@@ -15,6 +23,7 @@ public class PlaceHolderActivity extends AppCompatActivity {
 
     protected static final String GRUPO_KEY = "grupo_key";
     protected static final String GRUPO_NAME = "grupo_name";
+    protected static final String PRODUCTO_KEY = "producto_key";
     protected Activity self;
     protected static final int REQUEST_READ_CONTACTS = 0;
 
@@ -75,5 +84,37 @@ public class PlaceHolderActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    protected void showConfirm(String msg, final ResponseListener<Void> cb) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.app_name);
+        builder.setMessage(msg);
+        builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                cb.ok(null);
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                cb.err("Cancel");
+            }
+        });
+        Dialog dialog = builder.create();
+        dialog.show();
+    }
+
+    protected void showOptions(String[] options, final ResponseListener<Integer> cb) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Optiones");
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                cb.ok(which);
+            }
+        });
+        builder.setNegativeButton(getResources().getText(R.string.cancel), null);
+        Dialog dialog = builder.create();
+        dialog.show();
     }
 }

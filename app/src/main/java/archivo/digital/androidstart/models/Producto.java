@@ -73,6 +73,11 @@ public class Producto implements JSONAware<Producto> {
 
     @Override
     public JSONObject toJSONObject() throws JSONException {
-        return null;
+        JSONObject obj = new JSONObject();
+        obj.put("_KEY", getKey());
+        obj.put("NOMBRE", getNombre());
+        obj.put("DESCRIPCION", getDescription());
+        obj.put("GRUPO", getGrupo());
+        return obj;
     }
 }
