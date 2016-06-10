@@ -12,8 +12,8 @@ import archivo.digital.androidstart.services.DataService;
 import archivo.digital.androidstart.utils.ResponseListener;
 
 /**
- * @author http://www.socobox.co
- *         Created by miguel on 9/06/2016.
+ * @author https://archivo.digital
+ *         Created by miguel@archivo.digital 9/06/2016.
  */
 public class ProductoDetailActivity extends ProductPlaceholderActivity implements View.OnClickListener {
 
