@@ -9,12 +9,13 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import archivo.digital.android.ADCallback;
 import archivo.digital.androidstart.R;
 import archivo.digital.androidstart.models.GrupoProducto;
 import archivo.digital.androidstart.services.DataService;
-import archivo.digital.androidstart.utils.ResponseListener;
 
 /**
  * @author https://archivo.digital
@@ -42,9 +43,9 @@ public class GrupoActivity extends PlaceHolderActivity implements AdapterView.On
     @Override
     protected void onStart() {
         super.onStart();
-        DataService.getInstance(this).loadGrupoProductos(new ResponseListener<ArrayList<GrupoProducto>>() {
+        DataService.getInstance(this).loadGrupoProductos(new ADCallback<List<GrupoProducto>>() {
             @Override
-            public void ok(ArrayList<GrupoProducto> obj) {
+            public void ok(List<GrupoProducto> obj) {
                 mList.clear();
                 map.clear();
                 for (int i = 0; i < obj.size(); i++) {
@@ -52,7 +53,13 @@ public class GrupoActivity extends PlaceHolderActivity implements AdapterView.On
                     map.put(i, g);
                     mList.add(g.toString());
                 }
-                mAdapter.notifyDataSetChanged();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+
             }
 
             @Override

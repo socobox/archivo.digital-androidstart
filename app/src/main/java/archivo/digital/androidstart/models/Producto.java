@@ -1,15 +1,15 @@
 package archivo.digital.androidstart.models;
 
+
+import archivo.digital.android.ADJSONAware;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import archivo.digital.androidstart.utils.JSONAware;
 
 /**
  * @author https://archivo.digital
  *         Created by miguel@archivo.digital 8/06/2016.
  */
-public class Producto implements JSONAware<Producto> {
+public class Producto implements ADJSONAware<Producto> {
 
     private String key;
     private String nombre;
@@ -67,7 +67,18 @@ public class Producto implements JSONAware<Producto> {
         setKey(object.getString("_KEY"));
         setNombre(object.getString("NOMBRE"));
         setDescription(object.getString("DESCRIPCION"));
-        setGrupo(object.getString("GRUPO"));
+
+
+        if (object.optJSONObject("GRUPO") == null) {
+            setGrupo(object.getString("GRUPO"));
+        } else {
+            GrupoProducto g = new GrupoProducto();
+            g.mapFromJSONObject(object.getJSONObject("GRUPO"));
+            setGrupo(g.getKey());
+            setGrupoReference(g);
+        }
+
+
         return this;
     }
 

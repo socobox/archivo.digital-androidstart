@@ -5,11 +5,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import archivo.digital.android.ADCallback;
 import org.w3c.dom.Text;
 
 import archivo.digital.androidstart.models.Producto;
 import archivo.digital.androidstart.services.DataService;
-import archivo.digital.androidstart.utils.ResponseListener;
+
+import java.util.List;
 
 /**
  * @author https://archivo.digital
@@ -31,10 +33,17 @@ public class ProductoDetailActivity extends ProductPlaceholderActivity implement
     }
 
     private void loadProduct() {
-        DataService.getInstance(this).loadProducto(getIntent().getStringExtra(PRODUCTO_KEY), new ResponseListener<Producto>() {
+        DataService.getInstance(this).loadProducto(getIntent().getStringExtra(PRODUCTO_KEY), new ADCallback<Producto>() {
+
             @Override
-            public void ok(Producto obj) {
-                setInfo(obj);
+            public void ok(final Producto obj) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setInfo(obj);
+                    }
+                });
+
             }
 
             @Override
@@ -66,10 +75,10 @@ public class ProductoDetailActivity extends ProductPlaceholderActivity implement
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn_edit:
-                showModalProducto(mProducto, new ResponseListener<Producto>() {
+                showModalProducto(mProducto, new ADCallback<Producto>() {
                     @Override
                     public void ok(Producto obj) {
-                        updateProducto(obj, new ResponseListener<Void>() {
+                        updateProducto(obj, new ADCallback<Void>() {
                             @Override
                             public void ok(Void obj) {
                                 loadProduct();
@@ -89,10 +98,10 @@ public class ProductoDetailActivity extends ProductPlaceholderActivity implement
                 });
                 break;
             case R.id.btn_delete:
-                showConfirm("Estas seguro que deseas eliminar este Producto.", new ResponseListener<Void>() {
+                showConfirm("Estas seguro que deseas eliminar este Producto.", new ADCallback<Void>() {
                     @Override
                     public void ok(Void obj) {
-                        deleteProducto(mProducto, new ResponseListener<Void>() {
+                        deleteProducto(mProducto, new ADCallback<Void>() {
                             @Override
                             public void ok(Void obj) {
                                 self.finish();

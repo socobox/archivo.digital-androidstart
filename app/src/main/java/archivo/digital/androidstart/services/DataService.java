@@ -3,21 +3,24 @@ package archivo.digital.androidstart.services;
 import android.content.Context;
 import android.util.Log;
 
+import archivo.digital.android.ADService;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import archivo.digital.android.ADCallback;
+import archivo.digital.android.ADQueryBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
 
 import archivo.digital.androidstart.models.GrupoProducto;
 import archivo.digital.androidstart.models.Producto;
-import archivo.digital.androidstart.utils.QueryBuilder;
-import archivo.digital.androidstart.utils.ResponseListener;
-import cz.msebera.android.httpclient.Header;
 
 /**
  * @author https://archivo.digital
@@ -66,7 +69,7 @@ public class DataService {
         this.ctx = ctx;
     }
 
-    public void login(String user, String password, final ResponseListener<Void> cb) {
+    public void login(String user, String password, final ADCallback<Void> cb) {
         RequestParams p = new RequestParams();
         p.put("login", user);
         p.put("password", password);
@@ -99,156 +102,48 @@ public class DataService {
         });
     }
 
-    public void loadGrupoProductos(final ResponseListener<ArrayList<GrupoProducto>> cb) {
+    public void loadGrupoProductos(final ADCallback<List<GrupoProducto>> cb) {
         JSONObject obj = null;
+
         try {
-            obj = new QueryBuilder(DOMAIN, "GRUPO_PRODUCTO", 1, 1000)
+            obj = new ADQueryBuilder(DOMAIN, "GRUPO_PRODUCTO", 1, 1000)
                     .compile();
-            Log.d("DATA", "QUERY:" + obj.toString());
-
-            try {
-
-                HttpService.postJSON(getContext(), "/api/data/v1/row/find", token, obj, new JsonHttpResponseHandler() {
-
-                    public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
-                        try {
-                            if (response.getBoolean("success")) {
-
-                                final JSONArray items = response.getJSONArray("results");
-
-                                ArrayList<GrupoProducto> ls = new ArrayList<>(items.length());
-                                for (int i = 0; i < items.length(); i++) {
-                                    GrupoProducto tmp = new GrupoProducto().mapFromJSONObject(items.getJSONObject(i));
-                                    ls.add(tmp);
-                                }
-
-                                cb.ok(ls);
-
-                            } else {
-                                cb.err("Problemas al sincronizar");
-                            }
-                        } catch (JSONException e) {
-
-                            Log.e("DBERROR", e.getMessage());
-                            cb.err("Problemas al sincronizar");
-                        }
-
-                    }
-
-
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        cb.err("Problemas al sincronizar");
-                    }
-                });
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            ADService.getInstance(ctx).findAllByQuery(token, obj, cb, GrupoProducto.class);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
     }
 
-    public void loadProductosPorGrupo(final String keyGrupo, final ResponseListener<ArrayList<Producto>> cb, final int page) {
-        JSONObject obj = null;
+    public void loadProductosPorGrupo(final String keyGrupo, final ADCallback<List<Producto>> cb, final int page) {
+
         try {
-            obj = new QueryBuilder(DOMAIN, "PRODUCTO", page, 1000)
-                    .addField(QueryBuilder.OP.EQ, QueryBuilder.ANDOR.AND, "GRUPO", keyGrupo)
+            JSONObject obj = new ADQueryBuilder(DOMAIN, "PRODUCTO", page, 1000)
+                    .addField(ADQueryBuilder.OP.EQ, ADQueryBuilder.ANDOR.AND, "GRUPO", keyGrupo)
                     .compile();
 
-            Log.d("DATA", "QUERY:" + obj.toString());
-
-            HttpService.postJSON(getContext(), "/api/data/v1/row/find", token, obj, new JsonHttpResponseHandler() {
-
-                public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
-                    try {
-                        if (response.getBoolean("success")) {
-
-                            final JSONArray items = response.getJSONArray("results");
-
-                            Log.w("DATA", "FOUND:" + items.length() + " PRODUCTS");
-
-                            ArrayList<Producto> ls = new ArrayList<>(items.length());
-
-                            for (int i = 0; i < items.length(); i++) {
-                                Producto tmp = new Producto().mapFromJSONObject(items.getJSONObject(i));
-                                ls.add(tmp);
-                            }
-                            cb.ok(ls);
-
-                        } else {
-                            cb.err("Problemas al sincronizar");
-                        }
-                    } catch (JSONException e) {
-
-                        Log.e("DBERROR", e.getMessage());
-                        cb.err("Problemas al sincronizar");
-                    }
-
-                }
-
-
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    cb.err("Problemas al sincronizar");
-                }
-            });
-        } catch (JSONException | UnsupportedEncodingException e) {
+            ADService.getInstance(ctx).findAllByQuery(token, obj, cb, Producto.class);
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
     }
 
-    public void loadProducto(final String keyProducto, final ResponseListener<Producto> cb) {
+    public void loadProducto(final String keyProducto, final ADCallback<Producto> cb) {
         JSONObject obj = null;
         try {
-            obj = new QueryBuilder(DOMAIN, "PRODUCTO", 1, 1000)
+            obj = new ADQueryBuilder(DOMAIN, "PRODUCTO", 1, 1000)
                     .fetch(new String[]{"GRUPO"})
                     .compileWithKeys(new String[]{keyProducto});
+            ADService.getInstance(ctx).getObject(token, obj, cb, Producto.class);
 
-            Log.d("DATA", "QUERY:" + obj.toString());
-
-            HttpService.postJSON(getContext(), "/api/data/v1/row/find", token, obj, new JsonHttpResponseHandler() {
-
-                public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
-                    try {
-                        Log.w("RESPONSE", response.toString());
-                        if (response.getBoolean("success")) {
-                            JSONArray items = response.getJSONArray("results");
-                            if (items.getJSONObject(0) == null){
-                                cb.err("Producto no existe");
-                            }
-                            JSONObject fetch = response.getJSONObject("fetched_results");
-                            JSONObject obj = items.getJSONObject(0);
-
-                            Producto tmp = new Producto().mapFromJSONObject(obj);
-                            GrupoProducto aux = new GrupoProducto().mapFromJSONObject(
-                                    fetch.getJSONObject("GRUPO").getJSONObject(tmp.getGrupo())
-                            );
-                            tmp.setGrupoReference(aux);
-
-                            cb.ok(tmp);
-
-                        } else {
-                            cb.err(response.getString("msg"));
-                        }
-                    } catch (JSONException e) {
-                        Log.e("DBERROR", e.getMessage());
-                        cb.err(e.getMessage());
-                    }
-
-                }
-
-
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    cb.err("Problemas al sincronizar");
-                }
-            });
-        } catch (JSONException | UnsupportedEncodingException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
     }
 
-    public void addProducto(String name, String desc, String key, final ResponseListener<Void> cb){
+    public void addProducto(String name, String desc, String key, final ADCallback<Void> cb){
         JSONObject obj = new JSONObject();
         try {
             obj.put("domain", DOMAIN);
@@ -299,7 +194,7 @@ public class DataService {
     }
 
 
-    public void updateProducto(Producto prod, final ResponseListener<Void> cb) {
+    public void updateProducto(Producto prod, final ADCallback<Void> cb) {
         JSONObject obj = new JSONObject();
         try {
             obj.put("domain", DOMAIN);
@@ -344,10 +239,10 @@ public class DataService {
         }
     }
 
-    public void deleteProducto(Producto prod, final ResponseListener<Void> cb) {
+    public void deleteProducto(Producto prod, final ADCallback<Void> cb) {
         JSONObject obj = null;
         try {
-            obj = new QueryBuilder(DOMAIN, "PRODUCTO")
+            obj = new ADQueryBuilder(DOMAIN, "PRODUCTO")
                     .compileWithKeys(new String[]{prod.getKey()});
 
             Log.d("DATA", "PRODCUTO JSON:" + obj.toString());

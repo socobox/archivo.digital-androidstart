@@ -1,15 +1,15 @@
 package archivo.digital.androidstart.models;
 
+import archivo.digital.android.ADJSONAware;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import archivo.digital.androidstart.utils.JSONAware;
 
 /**
  * @author https://archivo.digital
  *         Created by miguel@archivo.digital 8/06/2016.
  */
-public class GrupoProducto implements JSONAware<GrupoProducto> {
+public class GrupoProducto implements ADJSONAware<GrupoProducto> {
     private String key;
     private String nombre;
     private float vlrDomicilio;

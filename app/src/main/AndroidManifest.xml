@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="archivo.digital.androidstart">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+          package="archivo.digital.androidstart">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -48,6 +48,7 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".ProductoActivity">
         </activity>
+        <meta-data tools:replace="android:value" android:name="archivo.digital-key" android:value="abddef12-34abd-def43-fdeb8-abc9877" />
     </application>
 
 </manifest>

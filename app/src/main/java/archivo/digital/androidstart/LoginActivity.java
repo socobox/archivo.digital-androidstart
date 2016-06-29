@@ -33,7 +33,7 @@ import java.util.List;
 
 import archivo.digital.androidstart.R;
 import archivo.digital.androidstart.services.DataService;
-import archivo.digital.androidstart.utils.ResponseListener;
+import archivo.digital.android.ADCallback;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -165,7 +165,7 @@ public class LoginActivity extends PlaceHolderActivity implements LoaderCallback
         } else {
             mAuthTask = true;
             showProgress(true);
-            DataService.getInstance(self).login(email, password, new ResponseListener<Void>() {
+            DataService.getInstance(self).login(email, password, new ADCallback<Void>() {
                 @Override
                 public void ok(Void obj) {
                     mAuthTask = false;

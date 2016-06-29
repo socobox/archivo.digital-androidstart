@@ -17,12 +17,13 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import archivo.digital.android.ADCallback;
 import archivo.digital.androidstart.R;
 import archivo.digital.androidstart.models.Producto;
 import archivo.digital.androidstart.services.DataService;
-import archivo.digital.androidstart.utils.ResponseListener;
 
 /**
  * @author https://archivo.digital
@@ -57,17 +58,22 @@ public class ProductoActivity extends ProductPlaceholderActivity implements Adap
     }
 
     private void loadProducts() {
-        DataService.getInstance(this).loadProductosPorGrupo(getIntent().getStringExtra(GRUPO_KEY), new ResponseListener<ArrayList<Producto>>() {
+        DataService.getInstance(this).loadProductosPorGrupo(getIntent().getStringExtra(GRUPO_KEY), new ADCallback<List<Producto>>() {
             @Override
-            public void ok(ArrayList<Producto> obj) {
+            public void ok(List<Producto> obj) {
                 mList.clear();
                 mListMaster.clear();
                 mListMaster.addAll(obj);
-                for (int i = 0; i < obj.size(); i++) {
-                    Producto g = obj.get(i);
+                for (Producto g : obj) {
                     mList.add(g.toString());
                 }
-                mAdapter.notifyDataSetChanged();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+
             }
 
             @Override
@@ -88,10 +94,10 @@ public class ProductoActivity extends ProductPlaceholderActivity implements Adap
         if (item.getItemId() == R.id.action_add){
             final Producto prod = new Producto();
             prod.setGrupo(getIntent().getStringExtra(GRUPO_KEY));
-            showModalProducto(prod, new ResponseListener<Producto>() {
+            showModalProducto(prod, new ADCallback<Producto>() {
                 @Override
                 public void ok(Producto obj) {
-                    addProducto(obj, new ResponseListener<Void>() {
+                    addProducto(obj, new ADCallback<Void>() {
                         @Override
                         public void ok(Void obj) {
                             loadProducts();
@@ -125,15 +131,15 @@ public class ProductoActivity extends ProductPlaceholderActivity implements Adap
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         final Producto prod = mListMaster.get(position);
-        showOptions(options, new ResponseListener<Integer>() {
+        showOptions(options, new ADCallback<Integer>() {
             @Override
             public void ok(Integer obj) {
                 switch (obj) {
                     case 0:
-                        showModalProducto(prod, new ResponseListener<Producto>() {
+                        showModalProducto(prod, new ADCallback<Producto>() {
                             @Override
                             public void ok(Producto obj) {
-                                updateProducto(obj, new ResponseListener<Void>() {
+                                updateProducto(obj, new ADCallback<Void>() {
                                     @Override
                                     public void ok(Void obj) {
                                         loadProducts();
@@ -153,10 +159,10 @@ public class ProductoActivity extends ProductPlaceholderActivity implements Adap
                         });
                         break;
                     case 1:
-                        showConfirm("Esta seguro que deseas eliminar este producto.", new ResponseListener<Void>() {
+                        showConfirm("Esta seguro que deseas eliminar este producto.", new ADCallback<Void>() {
                             @Override
                             public void ok(Void obj) {
-                                deleteProducto(prod, new ResponseListener<Void>() {
+                                deleteProducto(prod, new ADCallback<Void>() {
                                     @Override
                                     public void ok(Void obj) {
                                         loadProducts();
@@ -185,4 +191,7 @@ public class ProductoActivity extends ProductPlaceholderActivity implements Adap
         });
         return true;
     }
+
+
+
 }

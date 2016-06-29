@@ -11,9 +11,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import archivo.digital.android.ADCallback;
 import archivo.digital.androidstart.models.Producto;
 import archivo.digital.androidstart.services.DataService;
-import archivo.digital.androidstart.utils.ResponseListener;
 
 /**
  * @author https://archivo.digital
@@ -86,7 +86,7 @@ public class PlaceHolderActivity extends AppCompatActivity {
         }
     }
 
-    protected void showConfirm(String msg, final ResponseListener<Void> cb) {
+    protected void showConfirm(String msg, final ADCallback<Void> cb) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.app_name);
         builder.setMessage(msg);
@@ -104,7 +104,7 @@ public class PlaceHolderActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showOptions(String[] options, final ResponseListener<Integer> cb) {
+    protected void showOptions(String[] options, final ADCallback<Integer> cb) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Optiones");
         builder.setItems(options, new DialogInterface.OnClickListener() {

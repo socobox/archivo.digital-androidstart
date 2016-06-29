@@ -8,9 +8,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import archivo.digital.android.ADCallback;
 import archivo.digital.androidstart.models.Producto;
 import archivo.digital.androidstart.services.DataService;
-import archivo.digital.androidstart.utils.ResponseListener;
 
 /**
  * @author https://archivo.digital
@@ -19,7 +19,7 @@ import archivo.digital.androidstart.utils.ResponseListener;
 public class ProductPlaceholderActivity extends PlaceHolderActivity {
     private EditText et_name, et_desc;
 
-    public void showModalProducto(final Producto prod, final ResponseListener<Producto> cb) {
+    public void showModalProducto(final Producto prod, final ADCallback<Producto> cb) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.modal_producto, null);
@@ -56,9 +56,9 @@ public class ProductPlaceholderActivity extends PlaceHolderActivity {
         et_desc = (EditText) view.findViewById(R.id.et_product_desc);
     }
 
-    public void addProducto(Producto prod, final ResponseListener<Void> cb) {
+    public void addProducto(Producto prod, final ADCallback<Void> cb) {
         String name = prod.getNombre(), desc = prod.getDescription(), keyGrupo = prod.getGrupo();
-        DataService.getInstance(this).addProducto(name, desc, keyGrupo, new ResponseListener<Void>() {
+        DataService.getInstance(this).addProducto(name, desc, keyGrupo, new ADCallback<Void>() {
             @Override
             public void ok(Void obj) {
                 cb.ok(null);
@@ -71,8 +71,8 @@ public class ProductPlaceholderActivity extends PlaceHolderActivity {
         });
     }
 
-    public void updateProducto(Producto prod, final ResponseListener<Void> cb) {
-        DataService.getInstance(this).updateProducto(prod, new ResponseListener<Void>() {
+    public void updateProducto(Producto prod, final ADCallback<Void> cb) {
+        DataService.getInstance(this).updateProducto(prod, new ADCallback<Void>() {
             @Override
             public void ok(Void obj) {
                 cb.ok(null);
@@ -85,8 +85,8 @@ public class ProductPlaceholderActivity extends PlaceHolderActivity {
         });
     }
 
-    public void deleteProducto(Producto prod, final ResponseListener<Void> cb) {
-        DataService.getInstance(this).deleteProducto(prod, new ResponseListener<Void>() {
+    public void deleteProducto(Producto prod, final ADCallback<Void> cb) {
+        DataService.getInstance(this).deleteProducto(prod, new ADCallback<Void>() {
             @Override
             public void ok(Void obj) {
                 cb.ok(null);
